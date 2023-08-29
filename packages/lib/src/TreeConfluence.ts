@@ -15,7 +15,7 @@ const blankPageAdf: string = JSON.stringify(doc(p("Page not published yet")));
 
 function flattenTree(
 	node: ConfluenceTreeNode,
-	ancestors: string[] = []
+	ancestors: string[] = [],
 ): ConfluenceNode[] {
 	const nodes: ConfluenceNode[] = [];
 	const { file, version, lastUpdatedBy, existingPageData, children } = node;
@@ -46,7 +46,7 @@ export async function ensureAllFilesExistInConfluence(
 	spaceKey: string,
 	parentPageId: string,
 	topPageId: string,
-	settings: ConfluenceSettings
+	settings: ConfluenceSettings,
 ): Promise<ConfluenceNode[]> {
 	const confluenceNode = await createFileStructureInConfluence(
 		settings,
@@ -56,7 +56,7 @@ export async function ensureAllFilesExistInConfluence(
 		spaceKey,
 		parentPageId,
 		topPageId,
-		false
+		false,
 	);
 
 	const pages = flattenTree(confluenceNode);
@@ -74,7 +74,7 @@ async function createFileStructureInConfluence(
 	spaceKey: string,
 	parentPageId: string,
 	topPageId: string,
-	createPage: boolean
+	createPage: boolean,
 ): Promise<ConfluenceTreeNode> {
 	if (!node.file) {
 		throw new Error("Missing file on node");
@@ -100,7 +100,7 @@ async function createFileStructureInConfluence(
 			node.file,
 			spaceKey,
 			parentPageId,
-			topPageId
+			topPageId,
 		);
 		file.pageId = pageDetails.id;
 		file.spaceKey = pageDetails.spaceKey;
@@ -127,7 +127,7 @@ async function createFileStructureInConfluence(
 			spaceKey,
 			file.pageId,
 			topPageId,
-			true
+			true,
 		);
 	});
 
@@ -154,7 +154,7 @@ async function ensurePageExists(
 	file: LocalAdfFile,
 	spaceKey: string,
 	parentPageId: string,
-	topPageId: string
+	topPageId: string,
 ) {
 	if (file.pageId) {
 		try {
@@ -182,7 +182,7 @@ async function ensurePageExists(
 				title: file.pageTitle,
 				version: contentById?.version?.number ?? 1,
 				lastUpdatedBy:
-					contentById?.version?.by?.accountId ?? "NO ACCOUNT ID",
+					contentById?.version?.by?.userKey ?? "NO ACCOUNT ID",
 				existingAdf: contentById?.body?.atlas_doc_format?.value,
 				spaceKey: contentById.space.key,
 				pageTitle: contentById.title,
@@ -219,7 +219,7 @@ async function ensurePageExists(
 		expand: ["version", "body.atlas_doc_format", "ancestors"],
 	};
 	const contentByTitle = await confluenceClient.content.getContent(
-		searchParams
+		searchParams,
 	);
 
 	const currentPage = contentByTitle.results[0];
@@ -230,7 +230,7 @@ async function ensurePageExists(
 			!currentPage.ancestors?.some((ancestor) => ancestor.id == topPageId)
 		) {
 			throw new Error(
-				`${file.pageTitle} is trying to overwrite a page outside the page tree from the selected top page`
+				`${file.pageTitle} is trying to overwrite a page outside the page tree from the selected top page`,
 			);
 		}
 
@@ -242,8 +242,7 @@ async function ensurePageExists(
 			id: currentPage.id,
 			title: file.pageTitle,
 			version: currentPage.version?.number ?? 1,
-			lastUpdatedBy:
-				currentPage.version?.by?.accountId ?? "NO ACCOUNT ID",
+			lastUpdatedBy: currentPage.version?.by?.userKey ?? "NO ACCOUNT ID",
 			existingAdf: currentPage.body?.atlas_doc_format?.value,
 			pageTitle: currentPage.title,
 			spaceKey,
@@ -271,7 +270,7 @@ async function ensurePageExists(
 			expand: ["version", "body.atlas_doc_format", "ancestors"],
 		};
 		const pageDetails = await confluenceClient.content.createContent(
-			creatingBlankPageRequest
+			creatingBlankPageRequest,
 		);
 
 		await adaptor.updateMarkdownValues(file.absoluteFilePath, {
@@ -282,8 +281,7 @@ async function ensurePageExists(
 			id: pageDetails.id,
 			title: file.pageTitle,
 			version: pageDetails.version?.number ?? 1,
-			lastUpdatedBy:
-				pageDetails.version?.by?.accountId ?? "NO ACCOUNT ID",
+			lastUpdatedBy: pageDetails.version?.by?.userKey ?? "NO ACCOUNT ID",
 			existingAdf: pageDetails.body?.atlas_doc_format?.value,
 			pageTitle: pageDetails.title,
 			ancestors:

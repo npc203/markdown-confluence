@@ -62,7 +62,7 @@ export default class ConfluencePlugin extends Plugin {
 			vault,
 			metadataCache,
 			this.settings,
-			this.app
+			this.app,
 		);
 
 		const mermaidItems = await this.getMermaidItems();
@@ -70,15 +70,12 @@ export default class ConfluencePlugin extends Plugin {
 			mermaidItems.extraStyleSheets,
 			mermaidItems.extraStyles,
 			mermaidItems.mermaidConfig,
-			mermaidItems.bodyStyles
+			mermaidItems.bodyStyles,
 		);
 		const confluenceClient = new ObsidianConfluenceClient({
 			host: this.settings.confluenceBaseUrl,
 			authentication: {
-				basic: {
-					email: this.settings.atlassianUserName,
-					apiToken: this.settings.atlassianApiToken,
-				},
+				personalAccessToken: this.settings.atlassianApiToken,
 			},
 			middlewares: {
 				onError(e) {
@@ -97,7 +94,7 @@ export default class ConfluencePlugin extends Plugin {
 			this.adaptor,
 			settingsLoader,
 			confluenceClient,
-			[new MermaidRendererPlugin(mermaidRenderer)]
+			[new MermaidRendererPlugin(mermaidRenderer)],
 		);
 	}
 
@@ -137,11 +134,11 @@ export default class ConfluencePlugin extends Plugin {
 		const cssTheme = this.app.vault?.getConfig("cssTheme") as string;
 		if (cssTheme) {
 			const fileExists = await this.app.vault.adapter.exists(
-				`.obsidian/themes/${cssTheme}/theme.css`
+				`.obsidian/themes/${cssTheme}/theme.css`,
 			);
 			if (fileExists) {
 				const themeCss = await this.app.vault.adapter.read(
-					`.obsidian/themes/${cssTheme}/theme.css`
+					`.obsidian/themes/${cssTheme}/theme.css`,
 				);
 				extraStyles.push(themeCss);
 			}
@@ -152,11 +149,11 @@ export default class ConfluencePlugin extends Plugin {
 			(this.app.vault?.getConfig("enabledCssSnippets") as string[]) ?? [];
 		for (const snippet of cssSnippets) {
 			const fileExists = await this.app.vault.adapter.exists(
-				`.obsidian/snippets/${snippet}.css`
+				`.obsidian/snippets/${snippet}.css`,
 			);
 			if (fileExists) {
 				const themeCss = await this.app.vault.adapter.read(
-					`.obsidian/snippets/${snippet}.css`
+					`.obsidian/snippets/${snippet}.css`,
 				);
 				extraStyles.push(themeCss);
 			}
@@ -184,7 +181,7 @@ export default class ConfluencePlugin extends Plugin {
 		adrFiles.forEach((element) => {
 			if (element.successfulUploadResult) {
 				returnVal.filesUploadResult.push(
-					element.successfulUploadResult
+					element.successfulUploadResult,
 				);
 				return;
 			}
@@ -241,7 +238,7 @@ export default class ConfluencePlugin extends Plugin {
 			callback: async () => {
 				console.log("HMMMM");
 				const json = JSON.parse(
-					'{"type":"doc","content":[{"type":"paragraph","content":[{"text":"Testing","type":"text"}]}],"version":1}'
+					'{"type":"doc","content":[{"type":"paragraph","content":[{"text":"Testing","type":"text"}]}],"version":1}',
 				);
 				console.log({ json });
 
@@ -261,7 +258,7 @@ export default class ConfluencePlugin extends Plugin {
 					});
 				const adf = JSON.parse(
 					testingPage.body?.atlas_doc_format?.value ||
-						'{type: "doc", content:[]}'
+						'{type: "doc", content:[]}',
 				);
 				renderADFDoc(adf);
 			},
@@ -360,7 +357,7 @@ export default class ConfluencePlugin extends Plugin {
 
 				if (checking) {
 					const frontMatter = this.app.metadataCache.getCache(
-						view.file.path
+						view.file.path,
 					)?.frontmatter;
 					const file = view.file;
 					const enabledForPublishing =
@@ -377,14 +374,14 @@ export default class ConfluencePlugin extends Plugin {
 						if (
 							view.file &&
 							view.file.path.startsWith(
-								this.settings.folderToPublish
+								this.settings.folderToPublish,
 							)
 						) {
 							delete frontmatter["connie-publish"];
 						} else {
 							frontmatter["connie-publish"] = true;
 						}
-					}
+					},
 				);
 				return true;
 			},
@@ -400,7 +397,7 @@ export default class ConfluencePlugin extends Plugin {
 
 				if (checking) {
 					const frontMatter = this.app.metadataCache.getCache(
-						view.file.path
+						view.file.path,
 					)?.frontmatter;
 					const file = view.file;
 					const enabledForPublishing =
@@ -417,14 +414,14 @@ export default class ConfluencePlugin extends Plugin {
 						if (
 							view.file &&
 							view.file.path.startsWith(
-								this.settings.folderToPublish
+								this.settings.folderToPublish,
 							)
 						) {
 							frontmatter["connie-publish"] = false;
 						} else {
 							delete frontmatter["connie-publish"];
 						}
-					}
+					},
 				);
 				return true;
 			},
@@ -439,7 +436,7 @@ export default class ConfluencePlugin extends Plugin {
 				}
 
 				const frontMatter = this.app.metadataCache.getCache(
-					view.file.path
+					view.file.path,
 				)?.frontmatter;
 
 				const file = view.file;
@@ -455,7 +452,7 @@ export default class ConfluencePlugin extends Plugin {
 							if (
 								Object.prototype.hasOwnProperty.call(
 									values,
-									propertyKey
+									propertyKey,
 								)
 							) {
 								const element =
@@ -471,7 +468,7 @@ export default class ConfluencePlugin extends Plugin {
 						}
 						this.adaptor.updateMarkdownValues(
 							file.path,
-							valuesToSet
+							valuesToSet,
 						);
 						close();
 					},
@@ -490,7 +487,7 @@ export default class ConfluencePlugin extends Plugin {
 			{},
 			ConfluenceUploadSettings.DEFAULT_SETTINGS,
 			{ mermaidTheme: "match-obsidian" },
-			await this.loadData()
+			await this.loadData(),
 		);
 	}
 
